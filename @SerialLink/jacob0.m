@@ -14,6 +14,7 @@
 %           exponential coordinates
 % 'trans'   Return translational submatrix of Jacobian
 % 'rot'     Return rotational submatrix of Jacobian 
+% 'n'       Return jacobian at position of link n
 %
 % Note::
 % - End-effector spatial velocity is a vector (6x1): the first 3 elements
@@ -54,22 +55,27 @@ function J0 = jacob0(robot, q, varargin)
     opt.rot = false;
     opt.analytic = {[], 'rpy', 'eul', 'exp'};
     opt.deg = false;
+    opt.n   = robot.n;
     
     opt = tb_optparse(opt, varargin);
-        if opt.deg
-    % in degrees mode, scale the columns corresponding to revolute axes
-    q = robot.todegrees(q);
-end
+    if opt.deg
+      % in degrees mode, scale the columns corresponding to revolute axes
+      q = robot.todegrees(q);
+    end
+    
+    n = opt.n;
     
 	%
 	%   dX_tn = Jn dq
 	%
-	Jn = jacobe(robot, q);	% Jacobian from joint to wrist space
+	Jn = jacobe(robot, q, 'n', n);	% Jacobian from joint to wrist space
 
 	%
 	%  convert to Jacobian in base coordinates
 	%
-	Tn = fkine(robot, q);	% end-effector transformation
+	[~,TnAll] = fkine(robot, q);	% end-effector transformation
+  
+  Tn = TnAll(n);
 	R = Tn.R;
 	J0 = [R zeros(3,3); zeros(3,3) R] * Jn;
 

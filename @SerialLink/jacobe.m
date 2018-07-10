@@ -8,6 +8,7 @@
 % Options::
 % 'trans'   Return translational submatrix of Jacobian
 % 'rot'     Return rotational submatrix of Jacobian 
+% 'n'       Return jacobian at position of link n
 %
 % Notes::
 % - Was joacobn() is earlier version of the Toolbox.
@@ -49,13 +50,14 @@ function J = jacobe(robot, q, varargin)
     opt.trans = false;
     opt.rot = false;
     opt.deg = false;
+    opt.n   = robot.n;
     opt = tb_optparse(opt, varargin);
     if opt.deg
         % in degrees mode, scale the columns corresponding to revolute axes
         q = robot.todegrees(q);
     end
     
-    n = robot.n;
+    n = opt.n;
     L = robot.links;        % get the links
     
    
